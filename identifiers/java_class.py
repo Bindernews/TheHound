@@ -3,7 +3,7 @@
 import io
 import identifier
 
-CLASS_PATTERN = bytearray.fromhex('CA FE BA BE')
+CLASS_PATTERN = 'CA FE BA BE'
 
 VERSION_LOOKUP = {
     0x30 = 'JDK 1.4',

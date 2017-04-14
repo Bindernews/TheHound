@@ -10,13 +10,20 @@ class Hound:
     Hound is the main state holder. All modules receive a Hound instance to which they register
     information.
     """
-    def __init__(self, block_size=2048):
+    def __init__(self, block_size=512):
         self._matcher = matchlib.PatternMatcher()
         self.block_size = block_size
         pass
 
     def add_match(self, match, resolver):
-        self._matcher.add_match(match, resolver)
+        if match is str:
+            self._matcher.add_match(bytearray.fromhex(match), resolver)
+        else:
+            self._matcher.add_match(match, resolver)
+
+    def add_matches(self, match_array, resolver):
+        for match in match_array:
+            self.add_match(match, resolver)
 
     def process(self, stream):
         search = HoundSearch(self, stream, self.block_size)
