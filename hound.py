@@ -72,5 +72,11 @@ class HoundSearch:
                     results.append(HoundMatch(self, known_position, matcher_result))
         return results
 
+def main():
+    
+    pass
 
+# Our "main method"
+if __name__ == '__main__':
+    main()
 
