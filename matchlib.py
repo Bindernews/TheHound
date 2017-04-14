@@ -6,8 +6,8 @@ C_QUESTION = ord('?')
 C_WILDCHAR = 0xff00
 
 MATCH_ESCAPE_LOOKUP = {
-    C_FSLASH = C_FSLASH,
-    C_QUESTION = C_WILDCHAR,
+    C_FSLASH: C_FSLASH,
+    C_QUESTION: C_WILDCHAR,
 }
 
 class SearchStruct:
