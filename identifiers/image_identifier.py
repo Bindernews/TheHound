@@ -33,6 +33,6 @@ def load(hound):
 	# Register JPEGs
 	hound.add_matches(JPEG_PATTERNS, JpegResolver())
 	# Register PNGs
-	hound.add_matches(PNG_PATTERN, PngResolver())
+	hound.add_matches(PNG_PATTERNS, PngResolver())
 	# Register GIFs
 	hound.add_matches(GIF_PATTERNS, GifResolver())
