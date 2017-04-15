@@ -23,6 +23,10 @@ BMP_PATTERNS = [
 	'42 4D 76 02',
 ]
 
+ICO_PATTERNS = [
+	'00 00 01 00'
+]
+
 class PngResolver:
 	def identify(self, stream):
 		return Result('PNG')
@@ -38,6 +42,9 @@ class GifResolver:
 class BmpResolver:
 	def identify(self, stream):
 		return Result('BMP')
+class IcoResolver:
+	def identity(self, stream):
+		return Result('ICO')
 	
 def load(hound):
 	# Register JPEGs
@@ -48,3 +55,5 @@ def load(hound):
 	hound.add_matches(GIF_PATTERNS, GifResolver())
 	# Register BMPs
 	hound.add_matches(BMP_PATTERNS, BmpResolver())
+	# Register ICOs
+	hound.add_matches(ICO_PATTERNS, IcoResolver())
