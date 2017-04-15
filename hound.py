@@ -5,6 +5,13 @@ import sys
 
 import matchlib
 
+def eprint(*args, **kwargs):
+    """
+    Print to stderr instead of stdout.
+    """
+    print(*args, file=sys.stderr, **kwargs)
+
+
 class Hound:
     """
     Hound is the main state holder. All modules receive a Hound instance to which they register
@@ -29,6 +36,40 @@ class Hound:
         search = HoundSearch(self, stream, self.block_size)
         search.search()
         return search.results()
+
+    def load_identifiers(self, module_path):
+        """
+        Load all python modules in the given module path.
+        """
+
+        # Here's where we'll store all of our loaded modules
+        results = dict()
+        # Locally scoped function that updates results and handles error printing
+        def loadmod(modname):
+            try:
+                modvalue = __import__(module_path + '.' + modname, fromlist=['*'])
+                # Allow the module to load itself
+                modvalue.load(self)
+                # If that doesn't fail, then add it to our list of loaded modules
+                results[modname] = modvalue
+            except AttributeError:
+                # If load() failed, then print that we couldn't load the module
+                eprint('Failed to load module:', modname)
+
+        # Now we actually process through the possible modules
+        directory = os.path.join(os.path.dirname(__file__), module_path)
+        file_list = os.listdir(directory)
+        for fn in file_list:
+            # Compute the path name
+            path = os.path.join(directory, fn)
+            if path.endswith('.py'):
+                loadmod(fn[:-3])
+            # This tests if it's a module in a directory
+            elif os.path.isdir(path) and os.path.exists(os.path.join(path, '__init__.py')):
+                loadmod(fn)
+        # Once we're done, return the dict of loaded modules
+        return results
+
 
 class HoundMatch:
     def __init__(self, search, start, matcher):
@@ -73,8 +114,8 @@ class HoundSearch:
         return results
 
 def main():
-    
-    pass
+    hound = Hound()
+    hound.load_identifiers('identifiers')
 
 # Our "main method"
 if __name__ == '__main__':
