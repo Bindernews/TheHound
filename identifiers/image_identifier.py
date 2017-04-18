@@ -42,6 +42,7 @@ class GifResolver:
 class BmpResolver:
 	def identify(self, stream):
 		return Result('BMP')
+
 class IcoResolver:
 	def identity(self, stream):
 		return Result('ICO')

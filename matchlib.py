@@ -86,15 +86,19 @@ def match_byte_iter(match):
 
 class MatchResult:
     def __init__(self, sstruct, confidence):
-        self._sstruct = sstruct
-        self._pattern = None
+        self.__sstruct = sstruct
+        self.__pattern = None
         self.results = sstruct.matches
         self.confidence = confidence
+
+    @property
+    def matches(self):
+        return self.__sstruct.matches
 
     def __str__(self):
         # Format is "pattern confidence [result1, result2, resultN]"
         # ex: "\xCA\xFE\xBA\xBE 0.750 [.class]"
-        s = self._sstruct.get_pattern() + ' {:.3f} ['.format(self.confidence)
+        s = self.__sstruct.get_pattern() + ' {:.3f} ['.format(self.confidence)
         for match in self.results:
             if hasattr(match, 'name'):
                 s += match.name
@@ -133,6 +137,9 @@ class PatternMatcher:
         Returns a list of MatchResult objects with the properties 'result' containing the relevant
         result object and 'confidence' which is a measure of the confidence of the result.
         The list is sorted by confidence (most confident first).
+
+        Prerequisites:
+        - len(match) > 0
         """
         results = []
         length = min(self.depth, len(match))

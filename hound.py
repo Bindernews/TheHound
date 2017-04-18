@@ -1,4 +1,5 @@
 
+import argparse
 import io
 import os
 import sys
@@ -23,7 +24,7 @@ class Hound:
         pass
 
     def add_match(self, match, resolver):
-        if match is str:
+        if not isinstance(match, bytearray):
             self._matcher.add_match(bytearray.fromhex(match), resolver)
         else:
             self._matcher.add_match(match, resolver)
@@ -72,11 +73,24 @@ class Hound:
 
 
 class HoundMatch:
-    def __init__(self, search, start, matcher):
+    def __init__(self, search, start, confidence, result):
         self.search = search
         self.start = start
-        self.end = end
-        self.matcher = matcher
+        self.confidence = confidence
+        self.result = result
+        # Copy values from result
+        self.name = result.name
+        self.description = result.description
+        self.length = result.length
+        self.data = result.data
+
+    def __str__(self):
+        s = self.name + ' 0x{:04x} c={:.2f}'.format(self.start, self.confidence)
+        if self.description:
+            s += ' ' + self.description
+        if self.data:
+            s += ' ' + str(self.data)
+        return s
 
 class HoundSearch:
     """
@@ -94,28 +108,51 @@ class HoundSearch:
         while True:
             # Read data from the stream then reset to the beginning of the block
             data = self.stream.read(read_size)
+            # Make sure we're not at the end of the stream
+            if len(data) == 0:
+                break
             self.stream.seek(-read_size, io.SEEK_CUR)
             # Perform match on our Hound's matcher
             matcher_list = self.hound._matcher.match(data)
-            self._process_matches(matcher_list)
+            # Add the data to our list of results
+            results += self._process_matches(matcher_list)
+            # Jump to the next block
+            self.stream.seek(self.block_size, io.SEEK_CUR)
+        return results
 
     def _process_matches(self, matcher_list):
         results = []
         # Loop through all possible matchers
         known_position = self.stream.tell()
-        for possible_match in matches:
+        for possible_match in matcher_list:
             for matcher in possible_match.matches:
                 # Reset stream before giving it to the identifier
                 self.stream.seek(known_position)
                 matcher_result = matcher.identify(self.stream)
                 # If we got successful results, append our results as a match
                 if matcher_result:
-                    results.append(HoundMatch(self, known_position, matcher_result))
+                    results.append(HoundMatch(self, known_position, possible_match.confidence, matcher_result))
         return results
 
+
+def build_argparser():
+    parser = argparse.ArgumentParser(description='Search a dd file for files of various types')
+    parser.add_argument('file', type=argparse.FileType('rb'), help='dd file for the Hound to scan')
+    parser.add_argument('--block-size', type=int, default=512, help='Hound will search for a file at each multiple of block-size in the dd file')
+    return parser
+
 def main():
+    parser = build_argparser()
+    args = parser.parse_args()
+
     hound = Hound()
     hound.load_identifiers('identifiers')
+
+    print('Processing file...')
+    results = HoundSearch(hound, args.file, args.block_size).search()
+    print('Results...')
+    for res in results:
+        print(res)
 
 # Our "main method"
 if __name__ == '__main__':
