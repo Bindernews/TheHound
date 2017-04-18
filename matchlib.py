@@ -1,4 +1,5 @@
 import string
+import collections
 
 # The wildchar "byte" that matches any byte.
 C_FSLASH = ord('/')
@@ -91,6 +92,13 @@ class MatchResult:
         self.results = sstruct.matches
         self.confidence = confidence
 
+    def max_confidence(self, confidence):
+        """
+        Set this match's confidence to be whichever confidence is higher, the current value
+        or the new value.
+        """
+        self.confidence = max(self.confidence, confidence)
+
     @property
     def matches(self):
         return self.__sstruct.matches
@@ -141,12 +149,15 @@ class PatternMatcher:
         Prerequisites:
         - len(match) > 0
         """
-        results = []
+        result_dict = dict()
         length = min(self.depth, len(match))
 
         def add_result(sstruct, i):
             confidence = (i - (0.5 * sstruct.calc_wildchar_parents())) / length
-            results.append( MatchResult(sstruct, confidence) )
+            if sstruct in result_dict:
+                result_dict[sstruct].max_confidence(confidence)
+            else:
+                result_dict[sstruct] = MatchResult(sstruct, confidence)
 
         cur_structs = [self.root]
         for i in range(length):
@@ -172,7 +183,9 @@ class PatternMatcher:
             add_result(sstruct, len(match))
 
         # Sort by confidence
+        results = list(iter(result_dict.values()))
         results.sort(key=lambda m: m.confidence)
+        results = results[::-1]
 
         return results
 
