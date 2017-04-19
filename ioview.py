@@ -5,6 +5,7 @@ class ReadView:
     """
     Allows you to pass a "view" of a file-like object.
     The source must be seekable.
+    As a side benefit, it also records the maximum location which was read.
     """
 
     def __init__(self, source, start, end):
@@ -14,6 +15,7 @@ class ReadView:
         self.__start = start
         # End position of the stream
         self.__end = end
+        self.max_pos = start
 
     def read(self, size=-1):
         end = self.__end
@@ -22,6 +24,7 @@ class ReadView:
         else:
             newpos = end
         length = newpos - self.__tell()
+        self.max_pos = max(self.max_pos, newpos)
         # Return empty bytearray if we're at the end of the view
         if length == 0:
             return b''
