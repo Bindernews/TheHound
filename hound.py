@@ -6,6 +6,10 @@ import sys
 
 import matchlib
 
+if int(sys.version[0]) < 3:
+    print('Python version 3 required')
+    exit(1)
+
 def eprint(*args, **kwargs):
     """
     Print to stderr instead of stdout.
