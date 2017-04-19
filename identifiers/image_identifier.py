@@ -3,7 +3,7 @@
 from identifier import Result
 
 JPEG_PATTERNS = [
-	'FF D8 FF E1',
+	'FF D8 FF E0',
 	'FF D8 FF E1',
 	'FF D8 FF FE',
 ]
@@ -29,23 +29,23 @@ ICO_PATTERNS = [
 
 class PngResolver:
 	def identify(self, stream):
-		return Result('PNG')
+		return Result('PNG', 'PNG image file')
 
 class JpegResolver:
 	def identify(self, stream):
-		return Result('JPEG')
+		return Result('JPEG', 'JPEG image file')
 
 class GifResolver:
 	def identify(self, stream):
-		return Result('GIF')
+		return Result('GIF', 'GIF image file')
 
 class BmpResolver:
 	def identify(self, stream):
-		return Result('BMP')
+		return Result('BMP', 'BMP image file')
 
 class IcoResolver:
 	def identity(self, stream):
-		return Result('ICO')
+		return Result('ICO', 'Windows icon file')
 	
 def load(hound):
 	# Register JPEGs

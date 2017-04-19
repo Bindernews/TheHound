@@ -84,8 +84,16 @@ class HoundMatch:
         self.length = result.length
         self.data = result.data
 
+    def pprint(self):
+        s = '{:s}\t{:06x}\t{:s}'.format(self.name, self.start, self.description or '', self.confidence)
+        if self.length:
+            s += '\n  len={:04x}'.format(self.length)
+        return s
+
     def __str__(self):
         s = self.name + ' 0x{:04x} c={:.2f}'.format(self.start, self.confidence)
+        if self.length:
+            s += ' len={:x}'.format(self.length)
         if self.description:
             s += ' ' + self.description
         if self.data:
@@ -106,18 +114,19 @@ class HoundSearch:
         results = []
         read_size = min(self.block_size, self.hound._matcher.depth)
         while True:
+            block = self.stream.tell()
             # Read data from the stream then reset to the beginning of the block
             data = self.stream.read(read_size)
             # Make sure we're not at the end of the stream
             if len(data) == 0:
                 break
-            self.stream.seek(-read_size, io.SEEK_CUR)
+            self.stream.seek(block)
             # Perform match on our Hound's matcher
             matcher_list = self.hound._matcher.match(data)
             # Add the data to our list of results
             results += self._process_matches(matcher_list)
             # Jump to the next block
-            self.stream.seek(self.block_size, io.SEEK_CUR)
+            self.stream.seek(block + self.block_size)
         return results
 
     def _process_matches(self, matcher_list):
@@ -148,11 +157,11 @@ def main():
     hound = Hound()
     hound.load_identifiers('identifiers')
 
-    print('Processing file...')
+    print('Processing file...', flush=True)
     results = HoundSearch(hound, args.file, args.block_size).search()
     print('Results...')
     for res in results:
-        print(res)
+        print(res.pprint())
 
 # Our "main method"
 if __name__ == '__main__':

@@ -154,6 +154,7 @@ class PatternMatcher:
 
         def add_result(sstruct, i):
             confidence = (i - (0.5 * sstruct.calc_wildchar_parents())) / length
+            # result_dict.append(MatchResult(sstruct, confidence))
             if sstruct in result_dict:
                 result_dict[sstruct].max_confidence(confidence)
             else:

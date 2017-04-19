@@ -7,7 +7,7 @@ PDF_PATTERNS = [
 
 class PdfResolver:
 	def identify(self, stream):
-		return Result('PDF')
+		return Result('PDF', 'Adobe PDF file')
 
 def load(hound):
 	hound.add_matches(PDF_PATTERNS, PdfResolver())
