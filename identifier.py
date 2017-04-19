@@ -14,4 +14,4 @@ class Result:
             s += ' ' + str(self.data)
         return s
         
-    
+MEBIBYTE = 1024 * 1024

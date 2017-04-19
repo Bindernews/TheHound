@@ -24,8 +24,8 @@ class Hound:
         pass
 
     def add_match(self, match, resolver):
-        if not isinstance(match, bytearray):
-            self._matcher.add_match(bytearray.fromhex(match), resolver)
+        if not (isinstance(match, bytearray) or isinstance(match, bytes)):
+            self._matcher.add_match(bytes.fromhex(match), resolver)
         else:
             self._matcher.add_match(match, resolver)
 
@@ -148,6 +148,7 @@ def build_argparser():
     parser = argparse.ArgumentParser(description='Search a dd file for files of various types')
     parser.add_argument('file', type=argparse.FileType('rb'), help='dd file for the Hound to scan')
     parser.add_argument('--block-size', type=int, default=512, help='Hound will search for a file at each multiple of block-size in the dd file')
+    parser.add_argument('--extract', metavar='PREFIX', type=str, default=None, help='Extract all located files with known sizes and name them using the given prefix along with a number.')
     return parser
 
 def main():
@@ -157,11 +158,24 @@ def main():
     hound = Hound()
     hound.load_identifiers('identifiers')
 
+    stream = args.file
+
     print('Processing file...', flush=True)
     results = HoundSearch(hound, args.file, args.block_size).search()
     print('Results...')
     for res in results:
         print(res.pprint())
+
+    if args.extract:
+        print('Extracting...', flush=True)
+        prefix = args.extract
+        for i in range(len(results)):
+            res = results[i]
+            if res.length:
+                fname = prefix + str(i) + '.' + res.name.lower()
+                with open(fname, 'wb') as fdout:
+                    stream.seek(res.start)
+                    fdout.write(stream.read(res.length))
 
 # Our "main method"
 if __name__ == '__main__':

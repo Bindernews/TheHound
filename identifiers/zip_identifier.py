@@ -15,8 +15,8 @@ from identifier import Result
 BUFFER_SIZE = 4096
 MEGABYTE = 1024 * 1024
 MIMETYPE_FILE = 'mimetype'
-EOCD_MAGIC = bytearray.fromhex('50 4b 05 06')
-CDFH_MAGIC = bytearray.fromhex('50 4b 01 02')
+EOCD_MAGIC = bytes.fromhex('50 4b 05 06')
+CDFH_MAGIC = bytes.fromhex('50 4b 01 02')
 
 ################
 # Pattern Data #
