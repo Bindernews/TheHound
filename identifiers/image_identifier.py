@@ -122,6 +122,6 @@ def load(hound):
     # Register GIFs
     hound.add_matches(GIF_PATTERNS, BasicImageResolver('GIF', 'GIF image'))
     # Register BMPs
-    hound.add_matches(BMP_PATTERNS, BasicImageResolver('BMP', 'Bitmap image')
+    hound.add_matches(BMP_PATTERNS, BasicImageResolver('BMP', 'Bitmap image'))
     # Register ICOs
     hound.add_matches(ICO_PATTERNS, BasicImageResolver('ICO', 'Windows icon'))
