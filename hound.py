@@ -6,8 +6,8 @@ import sys
 
 import matchlib
 
-if int(sys.version[0]) < 3:
-    print('Python version 3 required')
+if sys.version_info < (3, 1):
+    print('Python version 3.1 required')
     exit(1)
 
 def eprint(*args, **kwargs):
@@ -91,7 +91,7 @@ class HoundMatch:
     def pprint(self):
         s = '{:s}\t{:06x}\t{:s}'.format(self.name, self.start, self.description or '', self.confidence)
         if self.length:
-            s += '\n  len={:04x}'.format(self.length)
+            s += '\n  len={:x}'.format(self.length)
         return s
 
     def __str__(self):
@@ -115,6 +115,11 @@ class HoundSearch:
         self.block_size = block_size
 
     def search(self):
+        # Add an attribute to the stream denoting it's end
+        self.stream.seek(0, io.SEEK_END)
+        self.stream.size = self.stream.tell()
+        self.stream.seek(0)
+
         results = []
         read_size = min(self.block_size, self.hound._matcher.depth)
         while True:

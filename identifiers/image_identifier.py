@@ -10,10 +10,10 @@ import ioview
 #################################
 # Attempt to load PIL (or Pillow)
 try:
-    import PIL.Imageg
+    import PIL.Image
 except ImportError:
     PIL = None
-    print('PIL (or Pillow) not found, image support minimal')
+    print('Pillow not found, image support minimal')
 
 
 #############
@@ -23,7 +23,7 @@ except ImportError:
 PNG_CHUNK_IEND = b'IEND'
 PNG_CHUNK_IHDR = b'IHDR'
 JPEG_EOI = bytes.fromhex('FF D9')
-IMAGE_MAX_SIZE = MEBIBYTE * 10
+IMAGE_MAX_SIZE = MEBIBYTE * 20
 
 #######################
 # Identifier Patterns #
@@ -58,16 +58,18 @@ def read4UB(stream):
     return unpack('>I', stream.read(4))[0]
 
 def pil_image_length(stream):
-    origin = stream.tell()
-    end = origin + IMAGE_MAX_SIZE
-    view = ioview.ReadView(stream, origin, end)
-    img = PIL.Image.open(view, 'r')
-    # Force the image to load itself entirely
-    img.resize((2, 2))
-    # Reset stream back to origin for convenience
-    stream.seek(origin)
-    # Length is captured by view.max_pos
-    return view.max_pos - origin
+	try:
+	    origin = stream.tell()
+	    view = ioview.ReadView(stream, origin, stream.size)
+	    img = PIL.Image.open(view, 'r')
+	    # Force the image to load itself entirely
+	    img.resize((2, 2))
+	    # Reset stream back to origin for convenience
+	    stream.seek(origin)
+	    # Length is captured by view.max_pos
+	    return view.max_pos - origin
+	except IOError as e:
+		return -1
 
 class PngResolver:
     def next_chunk(self, stream):
