@@ -69,7 +69,7 @@ def pil_image_length(stream):
 	    # Length is captured by view.max_pos
 	    return view.max_pos - origin
 	except IOError as e:
-		return -1
+		return None
 
 class PngResolver:
     def next_chunk(self, stream):
