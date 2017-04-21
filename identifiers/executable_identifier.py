@@ -5,7 +5,7 @@ EXE_PATTERNS = [
   '4D 5A 90 00',
 ]
 
-BIN_PATTERNS = [
+ELF_PATTERNS = [
     '7F 45 4C 46'
 ]
 
@@ -13,9 +13,9 @@ MSI_PATTERNS = [
     'D0 CF 11 E0'
 ]
 
-class BinResolver:
+class ElfResolver:
     def identify(self, stream):
-        return Result('BIN', 'Linux executable')
+        return Result('ELF', 'Executable and Linkable Format (Linux binaries)')
     
 class ExeResolver:
     def identify(self, stream):
@@ -28,5 +28,5 @@ class MsiResolver:
 
 def load(hound):
     hound.add_matches(EXE_PATTERNS, ExeResolver())
-    hound.add_matches(BIN_PATTERNS, BinResolver())
+    hound.add_matches(ELF_PATTERNS, BinResolver())
     hound.add_matches(MSI_PATTERNS, MsiResolver())
