@@ -28,5 +28,5 @@ class MsiResolver:
 
 def load(hound):
     hound.add_matches(EXE_PATTERNS, ExeResolver())
-    hound.add_matches(ELF_PATTERNS, BinResolver())
+    hound.add_matches(ELF_PATTERNS, ElfResolver())
     hound.add_matches(MSI_PATTERNS, MsiResolver())
